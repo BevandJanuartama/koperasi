@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -38,9 +39,19 @@ class AdminController extends Controller
     /**
      * Data semua riwayat topup (dengan join ke user)
      */
-    public function dataTopup()
+    public function dataTopup(Request $request)
     {
-        $topup = DB::table('topups')
+        // 1. Logika penentuan rentang tanggal (Mengikuti variabel di view: min & max)
+        $startDate = $request->min
+            ? Carbon::parse($request->min)->startOfDay()
+            : Carbon::now()->startOfMonth();
+
+        $endDate = $request->max
+            ? Carbon::parse($request->max)->endOfDay()
+            : Carbon::now()->endOfMonth();
+
+        // 2. Query data topup dengan filter tanggal
+        $query = DB::table('topups')
             ->join('users', 'topups.user_id', '=', 'users.id')
             ->select(
                 'topups.*',
@@ -51,10 +62,23 @@ class AdminController extends Controller
                 'users.saldo',
                 'users.card_id'
             )
-            ->orderByDesc('topups.created_at')
-            ->paginate(10);
+            ->whereBetween('topups.created_at', [$startDate, $endDate]);
 
-        return view('admin.data-topup', compact('topup'));
+        // 3. Hitung total uang dan jumlah transaksi (sebelum pagination)
+        $totalTopupCount = $query->count();
+        $totalUangTopup = $query->sum('topups.total'); // Menggunakan kolom 'total' sesuai storeTopup Anda
+
+        // 4. Eksekusi data (Urutan terbaru)
+        $topup = $query->orderByDesc('topups.created_at')->paginate(10);
+
+        // 5. Kirim data ke view
+        return view('admin.data-topup', compact(
+            'topup', 
+            'startDate', 
+            'endDate', 
+            'totalTopupCount', 
+            'totalUangTopup'
+        ));
     }
 
     /**

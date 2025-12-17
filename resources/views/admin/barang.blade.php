@@ -8,8 +8,17 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
 
     <style>
         .dataTables_wrapper .dataTables_filter input, 
@@ -20,8 +29,25 @@
             outline: none;
         }
         .dataTables_wrapper .dataTables_filter { margin-bottom: 1.5rem; }
-        /* Style untuk kolom nomor agar di tengah */
         .text-center-col { text-align: center; }
+        
+        /* Style Tombol Export Emerald */
+        .dt-buttons { margin-bottom: 15px; gap: 8px; display: flex; }
+        button.dt-button {
+            background: #10b981 !important; /* emerald-500 */
+            color: white !important;
+            border: none !important;
+            border-radius: 0.5rem !important;
+            padding: 0.6rem 1.2rem !important;
+            font-weight: 600 !important;
+            font-size: 0.875rem !important;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+        }
+        button.dt-button:hover {
+            background: #059669 !important; /* emerald-600 */
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 <body class="bg-gray-100 p-8">
@@ -31,7 +57,6 @@
             Kelola Data Barang
         </h1>
 
-        {{-- NOTIFIKASI --}}
         @if(session('success'))
         <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
             <span class="block sm:inline">{{ session('success') }}</span>
@@ -83,7 +108,8 @@
                 <tbody class="divide-y divide-gray-200">
                     @foreach ($barang as $b)
                     <tr class="hover:bg-gray-50 transition">
-                        <td class="px-4 py-4 text-sm text-center font-medium text-gray-500"></td> <td class="px-4 py-4 text-sm text-gray-700 font-mono">{{ $b->kode }}</td>
+                        <td class="px-4 py-4 text-sm text-center font-medium text-gray-500"></td> 
+                        <td class="px-4 py-4 text-sm text-gray-700 font-mono">{{ $b->kode }}</td>
                         <td class="px-4 py-4 text-sm text-gray-900 font-bold">{{ $b->nama_barang }}</td>
                         <td class="px-4 py-4 text-sm text-gray-700 font-semibold text-emerald-600">Rp{{ number_format($b->harga, 0, ',', '.') }}</td>
                         <td class="px-4 py-4 text-sm text-gray-900 font-medium">{{ $b->stok }}</td>
@@ -103,22 +129,55 @@
         </div>
     </div>
 
-    {{-- MODAL EDIT (Sama seperti sebelumnya) --}}
     <script>
         $(document).ready(function() {
+            // Fungsi untuk mendapatkan tanggal hari ini format ddd-mm-yyyy
+            var d = new Date();
+            var dateStr = ("0" + d.getDate()).slice(-2) + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + d.getFullYear();
+            var fileName = 'data barang kantin - ' + dateStr;
+
             var t = $('#barangTable').DataTable({
+                "dom": 'Bfrtip',
+                "buttons": [
+                    {
+                        extend: 'excelHtml5',
+                        text: '📗 Export Excel',
+                        filename: fileName,
+                        title: 'DAFTAR DATA BARANG KANTIN',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4],
+                            format: {
+                                body: function (data, row, column, node) {
+                                    // Kolom 0: Mengisi nomor urut
+                                    if (column === 0) {
+                                        return row + 1;
+                                    }
+                                    
+                                    // Kolom 3: Kolom Harga (Menghapus 'Rp' dan '.')
+                                    if (column === 3) {
+                                        // Mengambil teks asli dari cell, hapus Rp, hapus titik
+                                        // Menggunakan regex untuk menghapus semua karakter kecuali angka
+                                        return data.replace(/[^\d]/g, '');
+                                    }
+                                    
+                                    return data;
+                                }
+                            }
+                        }
+                    },
+                ],
                 "columnDefs": [ {
                     "searchable": false,
                     "orderable": false,
-                    "targets": 0 // Kolom nomor tidak bisa di-sort/cari
+                    "targets": 0 
                 } ],
-                "order": [[ 2, 'asc' ]], // Default urut berdasarkan nama barang
+                "order": [[ 2, 'asc' ]],
                 "language": {
                     "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json"
                 }
             });
 
-            // Fungsi untuk membuat nomor urut dinamis
+            // Nomor urut dinamis di tampilan web
             t.on('order.dt search.dt', function () {
                 t.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
                     cell.innerHTML = i+1;
@@ -127,8 +186,6 @@
 
             $('#kode').focus();
         });
-
-        // ... (Fungsi Modal openEditModal & closeEditModal sama seperti sebelumnya) ...
     </script>
 </body>
 </html>

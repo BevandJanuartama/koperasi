@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\KantinController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SiswaController; // Import SiswaController
 
 // Redirect root ke login
@@ -85,7 +86,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('profile', [SiswaController::class, 'profile'])->name('siswa.profile');
 
         Route::get('/riwayat', [SiswaController::class, 'riwayatSeluruhnya'])->name('siswa.riwayat.seluruhnya');
-    });
+
+        Route::post('/password-check', [ProfileController::class, 'checkCurrentPassword'])->name('password.check');
+        // Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('password.update');
+        // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        });
 });
 
 // Auth routes

@@ -83,22 +83,6 @@ class BarangSeeder extends Seeder
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
-            [
-                'nama_barang' => 'tipe x',
-                'harga' => 5000,
-                'kode' => '8993988055174',
-                'stok' => 45,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-            [
-                'nama_barang' => 'likudi',
-                'harga' => 100000,
-                'kode' => '8997241600767',
-                'stok' => 10,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
         ]);
     }
 }
