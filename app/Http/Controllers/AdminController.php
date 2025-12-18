@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use App\Imports\UsersImport;
+use App\Models\Barang;
 use Maatwebsite\Excel\Facades\Excel;
 
 class AdminController extends Controller
@@ -177,16 +178,29 @@ class AdminController extends Controller
     public function importBarang(Request $request)
     {
         $request->validate([
-            'file_barang' => 'required|mimes:xlsx,xls,csv'
+            'file_barang' => 'required|mimes:csv,txt'
         ]);
 
-        try {
-            Excel::import(new BarangImport, $request->file('file_barang'));
-            return redirect()->back()->with('success', 'Data barang berhasil diimport!');
-        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
-            $failures = $e->failures();
-            return redirect()->back()->withFailures($failures);
+        $file = $request->file('file_barang');
+        $handle = fopen($file->getRealPath(), 'r');
+
+        // Header CSV
+        $header = fgetcsv($handle, 1000, ',');
+
+        while (($row = fgetcsv($handle, 1000, ',')) !== false) {
+            $data = array_combine($header, $row);
+
+            Barang::create([
+                'nama_barang' => trim($data['nama_barang']),
+                'kode'        => trim($data['kode']),
+                'harga'       => (int) $data['harga'],
+                'stok'        => (int) $data['stok'],
+            ]);
         }
+
+        fclose($handle);
+
+        return back()->with('success', 'Import CSV berhasil');
     }
 
     /**
