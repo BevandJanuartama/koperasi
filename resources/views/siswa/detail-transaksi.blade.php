@@ -15,7 +15,7 @@
         <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
             
             <div class="bg-indigo-600 text-white p-6">
-                <h1 class="text-2xl font-bold mb-1">Nota Transaksi #{{ $transaksi->id }}</h1>
+                <h1 class="text-2xl font-bold mb-1">Nota Transaksi</h1>
                 <p class="text-sm opacity-90">Tanggal: {{ \Carbon\Carbon::parse($transaksi->created_at)->format('d F Y, H:i:s') }} WITA</p>
             </div>
 
@@ -39,8 +39,8 @@
                 </ul>
 
                 <div class="mt-6 pt-4 border-t border-dashed border-gray-400 flex justify-between items-center">
-                    <span class="text-2xl font-extrabold text-gray-800">TOTAL HARGA:</span>
-                    <span class="text-3xl font-extrabold text-green-600">
+                    <span class="text-l font-extrabold text-gray-800">TOTAL HARGA:</span>
+                    <span class="text-xl font-extrabold text-red-600">
                         Rp{{ number_format($transaksi->total, 0, ',', '.') }}
                     </span>
                 </div>

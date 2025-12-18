@@ -40,6 +40,9 @@ Route::middleware(['auth'])->group(function () {
         // --- Registrasi Kartu ---
         Route::get('registrasi', [AdminController::class, 'registerCard'])->name('admin.registerCard');
         Route::post('registrasi-kartu/store', [AdminController::class, 'storeCard'])->name('admin.storeCard');
+
+        Route::post('registrasi/import', [AdminController::class, 'importExcel'])->name('admin.importExcel');
+        Route::post('barang/import', [AdminController::class, 'importBarang'])->name('admin.barang.import');
     });
 
     // ============================

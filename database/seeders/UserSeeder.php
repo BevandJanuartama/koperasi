@@ -47,21 +47,21 @@ class UserSeeder extends Seeder
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
-            [
-                'id' => 3,
-                'username' => '678954321',
-                'nama' => 'pirja',
-                'kelas' => 'XIIC',
-                'jurusan' => 'RPL',
-                'saldo' => 25000.00,
-                'level' => 'siswa',
-                // password sesuai level: 'siswa'
-                'password' => Hash::make('954321'),
-                'card_id' => '0004413093',
-                'remember_token' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
+            // [
+            //     'id' => 3,
+            //     'username' => '678954321',
+            //     'nama' => 'pirja',
+            //     'kelas' => 'XIIC',
+            //     'jurusan' => 'RPL',
+            //     'saldo' => 25000.00,
+            //     'level' => 'siswa',
+            //     // password sesuai level: 'siswa'
+            //     'password' => Hash::make('954321'),
+            //     'card_id' => '0004413093',
+            //     'remember_token' => null,
+            //     'created_at' => $now,
+            //     'updated_at' => $now,
+            // ],
         ];
 
         // Hapus data lama (opsional). Jika tidak mau menghapus, komentar baris di bawah.

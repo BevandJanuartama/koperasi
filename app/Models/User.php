@@ -8,24 +8,25 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
+     * Kolom yang boleh diisi secara massal (Mass Assignable)
+     * Tambahkan semua kolom yang ada di form registrasi & excel
      */
     protected $fillable = [
-        'name',
-        'email',
+        'username',
+        'nama',
+        'kelas',
+        'jurusan',
+        'saldo',
+        'level',
         'password',
+        'card_id',
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
+     * Atribut yang harus disembunyikan saat serialisasi (misal: API)
      */
     protected $hidden = [
         'password',
@@ -33,20 +34,19 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Casting tipe data
      */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password' => 'hashed', // Password otomatis di-hash jika pakai Eloquent
+            'saldo' => 'integer',
         ];
     }
 
     /**
-     * Relasi ke model Topup (satu user punya banyak topup)
+     * Relasi ke model Topup
      */
     public function topups()
     {

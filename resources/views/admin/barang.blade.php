@@ -89,6 +89,20 @@
                 <button type="submit" class="mt-6 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition">Simpan Barang</button>
             </form>
         </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-md mb-6">
+            <h2 class="text-lg font-bold text-gray-700 mb-4">Import Data Barang</h2>
+            <form action="{{ route('admin.barang.import') }}" method="POST" enctype="multipart/form-data" class="flex items-center gap-4">
+                @csrf
+                <input type="file" name="file_barang" class="border p-2 rounded-lg text-sm w-full" required>
+                <button type="submit" class="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition">
+                    Upload
+                </button>
+            </form>
+            <p class="text-xs text-gray-500 mt-2 italic">
+                *Pastikan head Excel: <b>nama_barang, harga, kode, stok</b>
+            </p>
+        </div>
         
         {{-- TABEL DATA --}}
         <div class="bg-white p-6 rounded-xl shadow-lg">

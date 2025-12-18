@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\BarangImport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use App\Imports\UsersImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AdminController extends Controller
 {
@@ -171,6 +174,21 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Barang berhasil ditambahkan!');
     }
 
+    public function importBarang(Request $request)
+    {
+        $request->validate([
+            'file_barang' => 'required|mimes:xlsx,xls,csv'
+        ]);
+
+        try {
+            Excel::import(new BarangImport, $request->file('file_barang'));
+            return redirect()->back()->with('success', 'Data barang berhasil diimport!');
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            return redirect()->back()->withFailures($failures);
+        }
+    }
+
     /**
      * Update barang
      */
@@ -228,8 +246,8 @@ class AdminController extends Controller
             'kelas' => 'required|string|max:50',
             'jurusan' => 'required|string|max:100',
             'card_id' => 'required|string|unique:users,card_id',
-            'password' => 'required|string|min:6',
-            'level' => 'required|string|in:user,admin',
+            'password' => 'required|numeric|digits:6',
+            'level' => 'required|string|in:user,admin,kantin',
         ]);
 
         DB::table('users')->insert([
@@ -246,5 +264,16 @@ class AdminController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Kartu berhasil diregistrasi!');
+    }
+
+    public function importExcel(Request $request)
+    {
+        $request->validate([
+            'file_excel' => 'required|mimes:xlsx,xls,csv'
+        ]);
+
+        Excel::import(new UsersImport, $request->file('file_excel'));
+
+        return redirect()->back()->with('success', 'Data user berhasil diimport!');
     }
 }
